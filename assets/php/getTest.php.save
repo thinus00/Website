@@ -1,0 +1,105 @@
+<?php
+
+$id = $_GET['id'];
+$dbname = 'temps'; // Enter DB Here
+$username = 'tempuser'; // Enter Username Here
+$password = 'M@t0rb1k3pi'; // Enter Password Here
+
+$conn = new PDO("mysql:host=localhost;dbname=$dbname", $username, $password);
+  $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+try {
+  if (empty($_GET['id'])) {
+//    $result = $conn->query("select numbers.*,t0.value/16 as t0,t1.value/16 as t1,t21.value/16 as t21,t22.value/16 as t22,t31.value/16 as t31,t32.value/16 as t32 from numbers " .
+//"left outer join (select * from temp_10 where timestamp >= (select min(numbers.dateStart) from numbers) and timestamp < (select max(numbers.dateEnd) from numbers) and tempid = 0) t0 on (t0.timestamp >= numbers.dateStart and t0.timestamp < numbers.dateEnd) " .
+//"left outer join (select * from temp_10 where timestamp >= (select min(numbers.dateStart) from numbers) and timestamp < (select max(numbers.dateEnd) from numbers) and tempid = 1) t1 on (t1.timestamp >= numbers.dateStart and t1.timestamp < numbers.dateEnd) " .
+//"left outer join (select * from temp_10 where timestamp >= (select min(numbers.dateStart) from numbers) and timestamp < (select max(numbers.dateEnd) from numbers) and tempid = 21) t21 on (t21.timestamp >= numbers.dateStart and t21.timestamp < numbers.dateEnd) " .
+//"left outer join (select * from temp_10 where timestamp >= (select min(numbers.dateStart) from numbers) and timestamp < (select max(numbers.dateEnd) from numbers) and tempid = 22) t22 on (t22.timestamp >= numbers.dateStart and t22.timestamp < numbers.dateEnd) " .
+//"left outer join (select * from temp_10 where timestamp >= (select min(numbers.dateStart) from numbers) and timestamp < (select max(numbers.dateEnd) from numbers) and tempid = 31) t31 on (t31.timestamp >= numbers.dateStart and t31.timestamp < numbers.dateEnd) " .
+//"left outer join (select * from temp_10 where timestamp >= (select min(numbers.dateStart) from numbers) and timestamp < (select max(numbers.dateEnd) from numbers) and tempid = 32) t32 on (t32.timestamp >= numbers.dateStart and t32.timestamp < numbers.dateEnd);");
+
+    $result = $conn->query("call fill_numbers3('2016-02-06 21:08:00', '2016-0");
+
+    $rows = array();
+    $table = array();
+    $table['cols'] = array(array('label' => 'Datetime', 'type' => 'string'),array('label' => '0', 'type' => 'number'),array('label' => '1', 'type' => 'number'),array('label' => '21', 'type' => 'number'),array('label' => '22', 'type' => 'number'),array('label' => '31', 'type' => 'number'),array('label' => '32', 'type' => 'number'));
+
+    foreach($result as $r) {
+
+      $data = array();
+      $data[] = array('v' => (string) $r['dateStart']); 
+      if ($r['t0'] != 0) {
+        $data[] = array('v' => (float) $r['t0']);
+      } else {
+        $data[] = array('v' => null);
+      }
+if ($r['t1'] != 0) {
+        $data[] = array('v' => (float) $r['t1']);
+      } else {
+        $data[] = array('v' => null);
+      }
+if ($r['t21'] != 0) {
+        $data[] = array('v' => (float) $r['t21']);
+      } else {
+        $data[] = array('v' => null);
+      }
+if ($r['t22'] != 0) {
+        $data[] = array('v' => (float) $r['t22']);
+      } else {
+        $data[] = array('v' => null);
+      }
+if ($r['t31'] != 0) {
+        $data[] = array('v' => (float) $r['t31']);
+      } else {
+        $data[] = array('v' => null);
+      }
+if ($r['t32'] != 0) {
+        $data[] = array('v' => (float) $r['t32']);
+      } else {
+        $data[] = array('v' => null);
+      }
+
+//      $data[] = array('v' => (float) $r['t0']); 
+//      $data[] = array('v' => (float) $r['t1']); 
+//      $data[] = array('v' => (float) $r['t21']); 
+//      $data[] = array('v' => (float) $r['t22']); 
+//      $data[] = array('v' => (float) $r['t31']); 
+//      $data[] = array('v' => (float) $r['t32']); 
+
+      $rows[] = array('c' => $data);
+    }
+
+  } else {
+    $result = $conn->query("SELECT *,(value/16) as temp_value FROM $dbname.temp_10 WHERE timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY) AND timestamp <= NOW() AND tempid = $id;");
+  
+
+    $rows = array();
+    $table = array();
+    $table['cols'] = array(array('label' => 'Datetime', 'type' => 'string'),array('label' => $id, 'type' => 'number'));
+
+    foreach($result as $r) {
+
+      $data = array();
+      $data[] = array('v' => (string) $r['timestamp']); 
+      $data[] = array('v' => (float) $r['temp_value']); 
+
+      $rows[] = array('c' => $data);
+    }
+  }
+
+$table['rows'] = $rows;
+
+} catch(PDOException $e) {
+    echo 'ERROR: ' . $e->getMessage();
+}
+
+try {
+  $result2 = $conn->prepare("SELECT tempid, timestamp, value, name, (value/16) as temp_value FROM temp_rt LEFT OUTER JOIN temp_details ON (temp_rt.tempid = temp_details.id);");
+
+  $result2->execute();
+
+} catch(PDOException $e) {
+    echo 'ERROR: ' . $e->getMessage();
+}
+
+?>
