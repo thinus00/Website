@@ -40,7 +40,7 @@ try {
       }
       $data[] = array('v' => (int) $r['valueSum_2014']);
       $data[] = array('v' => (int) $r['valueSum_2015']);
-      if ($r['month_no'] < 3) {
+      if ($r['month_no'] < 8) {
         $data[] = array('v' => (int) $r['valueSum_2016']);
       }
 
